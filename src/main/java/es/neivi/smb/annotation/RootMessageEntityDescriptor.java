@@ -11,7 +11,7 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
-import es.neivi.smb.exceptions.UniqueRootEventEntityRequired;
+import es.neivi.smb.exceptions.UniqueRootMessageEntityRequired;
 
 
 /**
@@ -29,7 +29,7 @@ public class RootMessageEntityDescriptor {
 	 * @throws ClassNotFoundException
 	 *             whether there is no domain object marked as
 	 *             {@link RootEventEntity} in the classpath.
-	 * @throws UniqueRootEventEntityRequired
+	 * @throws UniqueRootMessageEntityRequired
 	 *             whether multiple domain objects are marked as
 	 *             {@link RootEventEntity} when there has to be just one.
 	 */
@@ -72,7 +72,7 @@ public class RootMessageEntityDescriptor {
 		if (size == 0)
 			throw new ClassNotFoundException();
 		else if (size > 1) {
-			throw new UniqueRootEventEntityRequired();
+			throw new UniqueRootMessageEntityRequired();
 		}
 
 		// size == 1
