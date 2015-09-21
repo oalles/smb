@@ -20,7 +20,7 @@ public class MessagePublisherImpl implements MessagePublisher {
 
 		try {
 
-			if (rootMessageEntityType.isAssignableFrom(message.getClass()))
+			if (validatePayload(message))
 				mongoTemplate.insert(message);
 		} catch (RuntimeException c) {
 			LoggerFactory.getLogger(this.getClass()).error("EXCP: {}",

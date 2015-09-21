@@ -4,11 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
-import es.neivi.smb.handler.AbstractMessageHandler;
+import es.neivi.smb.handler.MessageHandler;
 import es.neivi.smb.test.events.MessageCreatedEvent;
 import es.neivi.smb.test.events.PersistentApplicationEvent;
 
-public class SampleMessageHandler extends AbstractMessageHandler {
+public class SampleMessageHandler implements MessageHandler {
 
 	private static Logger LOG = LoggerFactory
 			.getLogger(SampleMessageHandler.class);

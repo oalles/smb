@@ -1,6 +1,7 @@
 package es.neivi.smb.annotation;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
@@ -15,6 +17,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.DbRefResolver;
 import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
+import org.springframework.util.MultiValueMap;
 
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
@@ -48,9 +51,14 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		
 
 		this.enableSMB = AnnotationAttributes.fromMap(importMetadata
-				.getAnnotationAttributes(EnableSMB.class.getName(), false));
+		.getAnnotationAttributes(EnableSMB.class.getName()));
+	
+		//
+		// this.enableSMB = AnnotationAttributes.fromMap(importMetadata
+		// .getAnnotationAttributes(EnableSMB.class.getName(), false));
 		// EnableSMB is present
 		if (this.enableSMB == null) {
 			throw new IllegalArgumentException(
@@ -126,6 +134,11 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 
 	// BEANS
 	@Bean
+	public MessagePublisher messagePublisher() {
+		return new MessagePublisherImpl();
+	}
+
+	@Bean
 	public MessageHandler messageHandler() {
 		return this.messageHandler;
 	}
@@ -155,11 +168,6 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 		tailingTask.start();
 		this.smbTaskExecutor.execute(tailingTask);
 		return tailingTask;
-	}
-
-	@Bean
-	public MessagePublisher messagePublisher() {
-		return new MessagePublisherImpl();
 	}
 
 	public String getCollectionname() {
