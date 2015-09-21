@@ -34,4 +34,8 @@ public class MessagePublisherImpl implements MessagePublisher {
 		this.rootMessageEntityType = rootMessageEntityType
 				.getRootMessageEntityType();
 	}
+	
+	public boolean validatePayload(Object payload) {
+		return rootMessageEntityType.isAssignableFrom(payload.getClass());
+	}
 }

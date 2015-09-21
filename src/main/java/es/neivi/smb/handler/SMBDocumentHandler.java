@@ -31,6 +31,7 @@ public final class SMBDocumentHandler implements DocumentHandler {
 
 		// this is why we need RootEventEntity
 		try {
+
 			Object message = mongoConverter.read(rootMessageEntityType, dbo);
 			messageHandler.handleMessage(message);
 		} catch (RuntimeException e) {
@@ -46,5 +47,10 @@ public final class SMBDocumentHandler implements DocumentHandler {
 		this.rootMessageEntityType = rootMessageEntityDescriptor
 				.getRootMessageEntityType();
 	}
+
+	// Only process valid payload
+//	public boolean validatePayload(Object payload) {
+//		return rootMessageEntityType.isAssignableFrom(payload.getClass());
+//	}
 
 }
