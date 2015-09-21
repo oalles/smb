@@ -13,28 +13,30 @@ import org.springframework.util.StringUtils;
 
 import es.neivi.smb.exceptions.UniqueRootMessageEntityRequired;
 
-
 /**
- * Some useful methods regarding {@link RootEventEntity} annotations.
+ * Store rootMessageEntity type, so can be used when converting to and from
+ * document/object object/document
+ * 
+ * {@link RootMessageEntity} annotations.
  */
 public class RootMessageEntityDescriptor {
 
 	private Class<?> rootMessageEntityType;
 
 	/**
-	 * Checks that there is one and only one event type annotated as
-	 * {@link RootEventEntity} to set the event hierarchy model.
+	 * Checks that there is one and only one message type annotated as
+	 * {@link RootMessageEntity} to set the message hierarchy model.
 	 * 
-	 * @return the type annotated as root for all the events.
+	 * @return the type annotated as root for all the messages.
 	 * @throws ClassNotFoundException
 	 *             whether there is no domain object marked as
-	 *             {@link RootEventEntity} in the classpath.
+	 *             {@link RootMessageEntity} in the classpath.
 	 * @throws UniqueRootMessageEntityRequired
 	 *             whether multiple domain objects are marked as
-	 *             {@link RootEventEntity} when there has to be just one.
+	 *             {@link RootMessageEntity} when there has to be just one.
 	 */
 	@PostConstruct
-	public void checkRootEventEntityType() throws ClassNotFoundException {
+	public void checkRootMessageEntityType() throws ClassNotFoundException {
 
 		// Exists
 		// Class.forName(rootEventEntityType.getName(), false, classLoader);

@@ -10,11 +10,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
- * Identifies a domain object as root message class.
+ * Identifies a domain object as root message class. See a propertiy is required
  * 
  * @see RootMessageEntityDescriptor
  */
-@Document(collection = "#{environment.getRequiredProperty('collectionname')}")
+// @Document(collection =
+// "#{environment.getRequiredProperty('collectionname')}")
+@Document(collection = "#{smbConfig.collectionname}")
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 @Import(SMBConfiguration.class)
