@@ -12,7 +12,7 @@ import com.mongodb.util.JSON;
 import es.neivi.mtc.DocumentHandler;
 import es.neivi.smb.annotation.RootMessageEntityDescriptor;
 
-public class SMBDocumentHandler implements DocumentHandler {
+public final class SMBDocumentHandler implements DocumentHandler {
 
 	@Autowired
 	@Qualifier("mbMongoConverter")
@@ -35,8 +35,7 @@ public class SMBDocumentHandler implements DocumentHandler {
 			messageHandler.handleMessage(message);
 		} catch (RuntimeException e) {
 			// Object cannot be converted to a domain model instance.
-			LoggerFactory.getLogger(this.getClass()).error(e.toString());
-			e.printStackTrace();
+			LoggerFactory.getLogger(this.getClass()).error("", e);
 		}
 
 	}
