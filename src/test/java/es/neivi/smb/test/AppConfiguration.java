@@ -1,11 +1,11 @@
 package es.neivi.smb.test;
 
 import java.util.Arrays;
-import java.util.concurrent.Executor;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.mongodb.MongoClient;
@@ -25,7 +25,7 @@ import es.neivi.smb.handler.MessageHandler;
 public class AppConfiguration extends AbstractSMBConfigurer {
 
 	@Override
-	public Executor getExecutor() {
+	public TaskExecutor getExecutor() {
 
 		// TaskExecutor executor = new SyncTaskExecutor();
 

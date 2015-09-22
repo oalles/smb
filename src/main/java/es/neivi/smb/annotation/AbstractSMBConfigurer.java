@@ -2,12 +2,10 @@ package es.neivi.smb.annotation;
 
 import java.util.concurrent.Executor;
 
-import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
-import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.stereotype.Component;
 
 import com.mongodb.MongoClient;
 
@@ -19,7 +17,7 @@ import es.neivi.smb.handler.MessageHandler;
  * @see SMBConfiguration
  * @see EnableSMB
  */
-@Configuration
+@Component
 public abstract class AbstractSMBConfigurer {
 
 	@Autowired
@@ -29,7 +27,7 @@ public abstract class AbstractSMBConfigurer {
 	 * The {@link Executor} instance to be used to be used to poll mongodb for
 	 * documents from a tailable consumer
 	 */
-	public abstract Executor getExecutor();
+	public abstract TaskExecutor getExecutor();
 
 	/**
 	 * Remember, for most applications, you should have one MongoClient instance
