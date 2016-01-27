@@ -6,20 +6,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
- * Identifies a domain object as root message class. See a propertiy is required
- * 
- * @see RootMessageEntityDescriptor
+ * Identifies a domain object as a type to be broadcasted.
  */
-// @Document(collection =
-// "#{environment.getRequiredProperty('collectionname')}")
 @Document(collection = "#{smbConfig.collectionname}")
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
-@Import(SMBConfiguration.class)
 @Documented
 public @interface RootMessageEntity {
 }
