@@ -1,20 +1,26 @@
 package es.neivi.smb.annotation;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.convert.DbRefResolver;
-import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
+import org.springframework.data.mongodb.core.mapping.BasicMongoPersistentEntity;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
@@ -23,6 +29,8 @@ import es.neivi.mtc.DocumentHandler;
 import es.neivi.mtc.TailingTask;
 import es.neivi.mtc.configuration.MTCConfiguration;
 import es.neivi.mtc.configuration.MTCPersistentTrackingConfiguration;
+import es.neivi.smb.exceptions.RootMessageEntityRequired;
+import es.neivi.smb.exceptions.UniqueRootMessageEntityRequired;
 import es.neivi.smb.handler.MessageHandler;
 import es.neivi.smb.handler.SMBDocumentHandler;
 import es.neivi.smb.publisher.MessagePublisher;
@@ -33,9 +41,6 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 		ImportAware {
 
 	private AnnotationAttributes enableSMB;
-
-	// Annotation atts
-	// private String consumerId;
 
 	// Configurer properties
 	private TaskExecutor smbTaskExecutor;
@@ -52,19 +57,11 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 		this.enableSMB = AnnotationAttributes.fromMap(importMetadata
 				.getAnnotationAttributes(EnableSMB.class.getName()));
 
-		//
-		// this.enableSMB = AnnotationAttributes.fromMap(importMetadata
-		// .getAnnotationAttributes(EnableSMB.class.getName(), false));
-		// EnableSMB is present
 		if (this.enableSMB == null) {
 			throw new IllegalArgumentException(
 					"@EnableSMB is not present on importing class "
 							+ importMetadata.getClassName());
 		}
-
-		// Get annotation atts
-		// String cId = enableSMB.getString("consumerId");
-		// this.consumerId = StringUtils.hasText(cId) ? cId : null;
 	}
 
 	/**
@@ -90,13 +87,6 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 		this.consumerId = configurer.getConsumerId();
 	}
 
-	@Bean
-	public RootMessageEntityDescriptor rootMessageEntityDescriptor()
-			throws Exception {
-		RootMessageEntityDescriptor rmed = new RootMessageEntityDescriptor();
-		return rmed;
-	}
-
 	@Bean(name = "mbMongoTemplate")
 	public MongoTemplate mongoTemplate() throws Exception {
 		return super.mongoTemplate();
@@ -110,12 +100,15 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 
 	@Bean(name = "mbMongoConverter")
 	public MappingMongoConverter mappingMongoConverter() throws Exception {
-		DbRefResolver dbRefResolver = new DefaultDbRefResolver(mongoDbFactory());
-		MappingMongoConverter converter = new MappingMongoConverter(
-				dbRefResolver, mongoMappingContext());
-		converter.setCustomConversions(customConversions());
 
-		return converter;
+//		DbRefResolver dbRefResolver = new DefaultDbRefResolver(mongoDbFactory());
+//		MappingMongoConverter converter = new MappingMongoConverter(
+//				dbRefResolver, mongoMappingContext());
+//		converter.setCustomConversions(customConversions());
+//
+//		return converter;
+		
+		return super.mappingMongoConverter();
 	}
 
 	@Override
@@ -145,11 +138,6 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 	}
 
 	@Bean
-	public DocumentHandler smbDocumentHandler() {
-		return new SMBDocumentHandler();
-	}
-
-	@Bean
 	public TailingTask tailingTask() {
 
 		MTCConfiguration configuration = new MTCConfiguration();
@@ -173,5 +161,72 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 
 	public String getCollectionname() {
 		return collectionname;
+	}
+	
+	protected String getMappingBasePackage() {
+
+		return "/*";
+	}
+
+	/**
+	 * Scans the mapping base package for classes annotated with
+	 * {@link RootMessageEntity}.
+	 * 
+	 * @see #getMappingBasePackage()
+	 * @return
+	 * @throws ClassNotFoundException
+	 */
+	public Set<Class<?>> getInitialEntitySet() throws ClassNotFoundException {
+
+		String basePackage = getMappingBasePackage();
+		Set<Class<?>> initialEntitySet = new HashSet<Class<?>>();
+
+		if (StringUtils.hasText(basePackage)) {
+			ClassPathScanningCandidateComponentProvider componentProvider = new ClassPathScanningCandidateComponentProvider(
+					false);
+			componentProvider.addIncludeFilter(new AnnotationTypeFilter(
+					RootMessageEntity.class));
+
+			for (BeanDefinition candidate : componentProvider
+					.findCandidateComponents(basePackage)) {
+				initialEntitySet.add(ClassUtils.forName(
+						candidate.getBeanClassName(),
+						SMBConfiguration.class.getClassLoader()));
+			}
+		}
+
+		// TO be stored in MongoMappingContext ...
+		return initialEntitySet;
+	}
+
+	public Class<?> getRootEntityType() {
+
+		Collection<BasicMongoPersistentEntity<?>> pes = null;
+
+		try {
+
+			pes = mongoMappingContext().getPersistentEntities();
+
+		} catch (ClassNotFoundException e) {
+			throw new RootMessageEntityRequired();
+		}
+
+		int size = pes.size();
+
+		if (size == 0)
+			throw new RootMessageEntityRequired();
+		else if (size > 1) {
+			throw new UniqueRootMessageEntityRequired();
+		}
+
+		// size == 1
+		BasicMongoPersistentEntity<?> pe = pes.iterator().next();
+
+		return pe.getType();
+	}
+
+	@Bean
+	public DocumentHandler smbDocumentHandler() {
+		return new SMBDocumentHandler(this.getRootEntityType());
 	}
 }

@@ -10,7 +10,6 @@ import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 
 import es.neivi.mtc.DocumentHandler;
-import es.neivi.smb.annotation.RootMessageEntityDescriptor;
 
 public final class SMBDocumentHandler implements DocumentHandler {
 
@@ -18,10 +17,14 @@ public final class SMBDocumentHandler implements DocumentHandler {
 	@Qualifier("mbMongoConverter")
 	private MongoConverter mongoConverter;
 
-	private Class<?> rootMessageEntityType;
-
 	@Autowired
 	private MessageHandler messageHandler;
+
+	private Class<?> rootMessageEntityType;
+
+	public SMBDocumentHandler(Class<?> rmet) {
+		this.rootMessageEntityType = rmet;
+	}
 
 	@Override
 	public void handleDocument(Document document) {
@@ -38,19 +41,5 @@ public final class SMBDocumentHandler implements DocumentHandler {
 			// Object cannot be converted to a domain model instance.
 			LoggerFactory.getLogger(this.getClass()).error("", e);
 		}
-
 	}
-
-	@Autowired
-	public void setRootMessageEntityDescriptor(
-			RootMessageEntityDescriptor rootMessageEntityDescriptor) {
-		this.rootMessageEntityType = rootMessageEntityDescriptor
-				.getRootMessageEntityType();
-	}
-
-	// Only process valid payload
-//	public boolean validatePayload(Object payload) {
-//		return rootMessageEntityType.isAssignableFrom(payload.getClass());
-//	}
-
 }

@@ -1,41 +1,40 @@
 package es.neivi.smb.publisher.impl;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
-import es.neivi.smb.annotation.RootMessageEntityDescriptor;
+import es.neivi.smb.annotation.RootMessageEntity;
 import es.neivi.smb.publisher.MessagePublisher;
 
 public class MessagePublisherImpl implements MessagePublisher {
+
+	private static Logger LOG = LoggerFactory
+			.getLogger(MessagePublisherImpl.class);
 
 	@Autowired
 	@Qualifier("mbMongoTemplate")
 	private transient MongoTemplate mongoTemplate;
 
-	private transient Class<?> rootMessageEntityType;
-
 	public void publish(Object message) {
 
 		try {
 
-			if (validatePayload(message))
-				mongoTemplate.insert(message);
-		} catch (RuntimeException c) {
-			LoggerFactory.getLogger(this.getClass()).error("EXCP: {}",
-					c.toString());
-		}
-	}
+			// type to be broadcasted?
+			RootMessageEntity entity = AnnotationUtils.findAnnotation(
+					message.getClass(), RootMessageEntity.class);
 
-	@Autowired
-	public void setRootMessageEntityDescriptor(
-			RootMessageEntityDescriptor rootMessageEntityType) {
-		this.rootMessageEntityType = rootMessageEntityType
-				.getRootMessageEntityType();
-	}
-	
-	public boolean validatePayload(Object payload) {
-		return rootMessageEntityType.isAssignableFrom(payload.getClass());
+			if (entity != null) // Yes -> Broadcast usint a Tailable collection
+				mongoTemplate.insert(message);
+			else
+				// No -> Do nothing but notify ...
+				LOG.warn("This type is not intended to be broadcasted");
+
+		} catch (RuntimeException c) {
+			LOG.error("EXCP: {}", c);
+		}
 	}
 }
