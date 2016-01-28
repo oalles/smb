@@ -20,7 +20,7 @@ import es.neivi.smb.handler.MessageHandler;
 
 @Configuration
 @ComponentScan
-@EnableSMB
+@EnableSMB(mappingBasePackage="es.neivi")
 @PropertySource("classpath:/META-INF/application.properties")
 public class AppConfiguration extends AbstractSMBConfigurer {
 
@@ -36,7 +36,7 @@ public class AppConfiguration extends AbstractSMBConfigurer {
 		executor.setKeepAliveSeconds(0);
 		executor.setThreadNamePrefix("SMB-");
 		executor.initialize();
-		
+
 		executor.setAwaitTerminationSeconds(60);
 		return executor;
 	}

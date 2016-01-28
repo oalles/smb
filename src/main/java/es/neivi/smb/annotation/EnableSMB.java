@@ -25,4 +25,15 @@ import org.springframework.context.annotation.Import;
 @Import(SMBConfiguration.class)
 @Documented
 public @interface EnableSMB {
+
+	/**
+	 * Alias for the {@link #mappingBasePackageClass()} attribute.
+	 */
+	String value() default "";
+
+	/**
+	 * Base package to scan for annotated components.
+	 * <p>
+	 */
+	String mappingBasePackage() default "";
 }

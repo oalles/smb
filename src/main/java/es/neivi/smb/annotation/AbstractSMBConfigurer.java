@@ -17,7 +17,6 @@ import es.neivi.smb.handler.MessageHandler;
  * @see SMBConfiguration
  * @see EnableSMB
  */
-// @Component
 @Configuration
 public abstract class AbstractSMBConfigurer {
 

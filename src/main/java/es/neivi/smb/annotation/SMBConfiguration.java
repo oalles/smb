@@ -9,6 +9,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Description;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.task.TaskExecutor;
@@ -42,11 +43,14 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 		ImportAware {
 
 	private AnnotationAttributes enableSMB;
+	private String mappingBasePackage;
 
 	// Configurer properties
 	private TaskExecutor smbTaskExecutor;
 	private MongoClient smbMongoClient;
 	private MongoMappingContext smbMongoMappingContext;
+
+	// MTC - MongoTailableConsumer
 	private MessageHandler messageHandler;
 	private String consumerId;
 	private String collectionname;
@@ -64,18 +68,25 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 					"@EnableSMB is not present on importing class: "
 							+ importMetadata.getClassName());
 		}
+
+		// Base package?
+		mappingBasePackage = enableSMB.getString("value");
+		if (StringUtils.isEmpty(mappingBasePackage))
+			mappingBasePackage = enableSMB.getString("mappingBasePackage");
+		if (StringUtils.isEmpty(mappingBasePackage))
+			mappingBasePackage = "/*";
 	}
 
 	/**
 	 * Collect any {@link AbstractSMBConfigurer} beans through autowiring.
 	 */
-	@Autowired(required = false)
+	@Autowired(required = true)
 	void setConfigurers(Collection<AbstractSMBConfigurer> configurers)
 			throws Exception {
 
 		if (configurers.size() != 1) {
 			throw new IllegalStateException(
-					"One and only one AbstractSMBConfigurer may exist. You have to provide a concrete implementation");
+					"One and only one AbstractSMBConfigurer may exist. You have to provide a concrete implementation. You could Make your ");
 		}
 		// configurer.size() == 1
 		AbstractSMBConfigurer configurer = configurers.iterator().next();
@@ -87,6 +98,12 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 		this.cursorRegenerationDelay = configurer.getCursorRegenerationDelay();
 		this.messageHandler = configurer.messageHandler();
 		this.consumerId = configurer.getConsumerId();
+	}
+
+	@Bean
+	@Description("The document processor when the document is read from a mongo tailable collection is going to call a read on a mongoconverter instance, so the document is converted to a given type")
+	public DocumentHandler smbDocumentHandler() {
+		return new SMBDocumentHandler(this.getRootEntityType());
 	}
 
 	@Bean(name = "mbMongoTemplate")
@@ -178,8 +195,7 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 	}
 
 	protected String getMappingBasePackage() {
-
-		return "/*";
+		return mappingBasePackage;
 	}
 
 	/**
@@ -237,10 +253,5 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 		BasicMongoPersistentEntity<?> pe = pes.iterator().next();
 
 		return pe.getType();
-	}
-
-	@Bean
-	public DocumentHandler smbDocumentHandler() {
-		return new SMBDocumentHandler(this.getRootEntityType());
 	}
 }
