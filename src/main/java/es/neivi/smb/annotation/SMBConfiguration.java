@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.mapping.BasicMongoPersistentEntity;
+import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -45,6 +46,7 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 	// Configurer properties
 	private TaskExecutor smbTaskExecutor;
 	private MongoClient smbMongoClient;
+	private MongoMappingContext smbMongoMappingContext;
 	private MessageHandler messageHandler;
 	private String consumerId;
 	private String collectionname;
@@ -59,7 +61,7 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 
 		if (this.enableSMB == null) {
 			throw new IllegalArgumentException(
-					"@EnableSMB is not present on importing class "
+					"@EnableSMB is not present on importing class: "
 							+ importMetadata.getClassName());
 		}
 	}
@@ -73,7 +75,7 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 
 		if (configurers.size() != 1) {
 			throw new IllegalStateException(
-					"Only one AbstractSMBConfigurer may exist");
+					"One and only one AbstractSMBConfigurer may exist. You have to provide a concrete implementation");
 		}
 		// configurer.size() == 1
 		AbstractSMBConfigurer configurer = configurers.iterator().next();
@@ -98,16 +100,28 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 		return super.mongoDbFactory();
 	}
 
+	@Bean(name = "mbMongoMappingContext")
+	public MongoMappingContext mongoMappingContext()
+			throws ClassNotFoundException {
+
+		if (smbMongoMappingContext == null) {
+			smbMongoMappingContext = super.mongoMappingContext();
+		}
+
+		return smbMongoMappingContext;
+	}
+
 	@Bean(name = "mbMongoConverter")
 	public MappingMongoConverter mappingMongoConverter() throws Exception {
 
-//		DbRefResolver dbRefResolver = new DefaultDbRefResolver(mongoDbFactory());
-//		MappingMongoConverter converter = new MappingMongoConverter(
-//				dbRefResolver, mongoMappingContext());
-//		converter.setCustomConversions(customConversions());
-//
-//		return converter;
-		
+		// DbRefResolver dbRefResolver = new
+		// DefaultDbRefResolver(mongoDbFactory());
+		// MappingMongoConverter converter = new MappingMongoConverter(
+		// dbRefResolver, mongoMappingContext());
+		// converter.setCustomConversions(customConversions());
+		//
+		// return converter;
+
 		return super.mappingMongoConverter();
 	}
 
@@ -162,7 +176,7 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 	public String getCollectionname() {
 		return collectionname;
 	}
-	
+
 	protected String getMappingBasePackage() {
 
 		return "/*";

@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Import;
  *
  * <pre class="code">
  * &#064;Configuration
- * &#064;EnableSMB(consumerId=#{env.getRequiredProperty("smb.consumer_id")})
+ * &#064;EnableSMB
  * public class AppConfig {
  * </pre>
  *

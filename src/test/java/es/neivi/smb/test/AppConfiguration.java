@@ -37,7 +37,6 @@ public class AppConfiguration extends AbstractSMBConfigurer {
 		executor.setThreadNamePrefix("SMB-");
 		executor.initialize();
 		
-		
 		executor.setAwaitTerminationSeconds(60);
 		return executor;
 	}

@@ -11,6 +11,10 @@ import com.mongodb.util.JSON;
 
 import es.neivi.mtc.DocumentHandler;
 
+/**
+ * It is a document processor from a capped collection with a tailabable cursor.
+ * Reads the document into the given type.
+ */
 public final class SMBDocumentHandler implements DocumentHandler {
 
 	@Autowired

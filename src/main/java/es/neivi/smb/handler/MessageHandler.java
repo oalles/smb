@@ -1,5 +1,17 @@
 package es.neivi.smb.handler;
 
+/**
+ * What to do when the domain entity is read from Mongodb
+ * 
+ * @author Omar
+ *
+ */
 public interface MessageHandler {
-	public void handleMessage(Object o);
+	/**
+	 * Entity processor sets what to do once the entity is read from a mongodb
+	 * tailable collection.
+	 * 
+	 * @param o
+	 */
+	public void handleMessage(Object message);
 }

@@ -3,9 +3,9 @@ package es.neivi.smb.annotation;
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.stereotype.Component;
 
 import com.mongodb.MongoClient;
 
@@ -13,11 +13,12 @@ import es.neivi.smb.handler.MessageHandler;
 
 /**
  * Base class for SMB configuration using JavaConfig.
-
+ * 
  * @see SMBConfiguration
  * @see EnableSMB
  */
-@Component
+// @Component
+@Configuration
 public abstract class AbstractSMBConfigurer {
 
 	@Autowired
