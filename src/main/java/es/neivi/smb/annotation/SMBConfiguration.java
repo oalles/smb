@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
@@ -38,9 +40,17 @@ import es.neivi.smb.handler.SMBDocumentHandler;
 import es.neivi.smb.publisher.MessagePublisher;
 import es.neivi.smb.publisher.impl.MessagePublisherImpl;
 
+/**
+ * instantiates, configures and initializes all objects required to have a
+ * working simple message broadcaster.
+ * 
+ * 
+ */
 @Configuration("smbConfig")
 public class SMBConfiguration extends AbstractMongoConfiguration implements
 		ImportAware {
+
+	private Logger LOG = LoggerFactory.getLogger(SMBConfiguration.class);
 
 	private AnnotationAttributes enableSMB;
 	private String mappingBasePackage;
@@ -49,8 +59,6 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 	private TaskExecutor smbTaskExecutor;
 	private MongoClient smbMongoClient;
 	private MongoMappingContext smbMongoMappingContext;
-
-	// MTC - MongoTailableConsumer
 	private MessageHandler messageHandler;
 	private String consumerId;
 	private String collectionname;
@@ -92,12 +100,26 @@ public class SMBConfiguration extends AbstractMongoConfiguration implements
 		AbstractSMBConfigurer configurer = configurers.iterator().next();
 
 		this.smbMongoClient = configurer.getMongoClient();
+		if (smbMongoClient == null) {
+			throw new IllegalStateException(
+					"You have provided a concrete inmplementation for AbstractSMBConfigurer. But the MongoClient instance you provided is null ");
+		}
 		this.smbTaskExecutor = configurer.getExecutor();
+		if (smbTaskExecutor == null) {
+			throw new IllegalStateException(
+					"You have provided a concrete inmplementation for AbstractSMBConfigurer. But the TaskExecutor instance you provided is null ");
+		}
+		this.messageHandler = configurer.messageHandler();
+		if (messageHandler == null) {
+			throw new IllegalStateException(
+					"You have provided a concrete inmplementation for AbstractSMBConfigurer. But the MessageHandler instance you provided is null ");
+		}
+
+		// Properties required
 		this.databaseName = configurer.getDatabaseName();
 		this.collectionname = configurer.getCollectionName();
-		this.cursorRegenerationDelay = configurer.getCursorRegenerationDelay();
-		this.messageHandler = configurer.messageHandler();
 		this.consumerId = configurer.getConsumerId();
+		this.cursorRegenerationDelay = configurer.getCursorRegenerationDelay();
 	}
 
 	@Bean

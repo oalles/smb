@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -20,7 +21,7 @@ import es.neivi.smb.handler.MessageHandler;
 
 @Configuration
 @ComponentScan
-@EnableSMB(mappingBasePackage="es.neivi")
+@EnableSMB(mappingBasePackage = "es.neivi")
 @PropertySource("classpath:/META-INF/application.properties")
 public class AppConfiguration extends AbstractSMBConfigurer {
 
@@ -54,6 +55,11 @@ public class AppConfiguration extends AbstractSMBConfigurer {
 	@Override
 	public MessageHandler messageHandler() {
 		return new SampleMessageHandler();
+	}
+
+	@Override
+	public void setEnvironment(Environment environment) {
+		this.env = environment;
 	}
 
 }

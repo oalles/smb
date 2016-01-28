@@ -2,8 +2,7 @@ package es.neivi.smb.annotation;
 
 import java.util.concurrent.Executor;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.core.task.TaskExecutor;
 
@@ -12,16 +11,16 @@ import com.mongodb.MongoClient;
 import es.neivi.smb.handler.MessageHandler;
 
 /**
- * Base class for SMB configuration using JavaConfig.
+ * IT is notified from the environment, properties and instances needed to provide all
+ * SMBConfiguration objects.
  * 
  * @see SMBConfiguration
  * @see EnableSMB
  */
-@Configuration
-public abstract class AbstractSMBConfigurer {
+// @Configuration
+public abstract class AbstractSMBConfigurer implements EnvironmentAware {
 
-	@Autowired
-	private Environment env;
+	protected Environment env;
 
 	/**
 	 * The {@link Executor} instance to be used to be used to poll mongodb for
