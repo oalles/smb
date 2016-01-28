@@ -31,7 +31,7 @@ public class MessagePublisherImpl implements MessagePublisher {
 				mongoTemplate.insert(message);
 			else
 				// No -> Do nothing but notify ...
-				LOG.warn("This type is not intended to be broadcasted");
+				LOG.warn("This type: {} is not intended to be broadcasted", message.getClass());
 
 		} catch (RuntimeException c) {
 			LOG.error("EXCP: {}", c);
