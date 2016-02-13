@@ -1,4 +1,4 @@
-package es.neivi.smb.test;
+package es.omarall.smb.test;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,8 +16,8 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import es.neivi.smb.publisher.MessagePublisher;
-import es.neivi.smb.test.events.MessageCreatedEvent;
+import es.omarall.smb.publisher.MessagePublisher;
+import es.omarall.smb.test.events.MessageCreatedEvent;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AppConfiguration.class }, loader = AnnotationConfigContextLoader.class)
